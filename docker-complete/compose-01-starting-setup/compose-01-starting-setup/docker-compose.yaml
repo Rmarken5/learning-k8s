@@ -5,12 +5,31 @@ services:
     volumes:
       - data:/data/db
     environment:
-      MONGO_INIT_DB_ROOT_USERNAME: max
-      MONGO_INIT_DB_ROOT_PASSWORD: secret
-    # env_file:
-    #	- <rel-path-to-env>
-    ##backend:
-
-  ##frontend
+      MONGO_INITDB_ROOT_USERNAME: max
+      MONGO_INITDB_ROOT_PASSWORD: secret
+  backend:
+    build: ./backend
+    ports:
+      - '80:80'
+    volumes:
+      - logs:/app/log
+      - ./backend:/app
+      - /app/node_modules
+    env_file:
+      - ./env/backend.env
+    depends_on:
+      - mongodb
+  frontend:
+    build: ./frontend
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./frontend/src:/app/src
+      - /app/node_modules
+    tty: true
+    stdin_open: true
+    depends_on:
+      - backend
 volumes:
   data:
+  logs:
